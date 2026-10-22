@@ -33,7 +33,8 @@ jobs:
 
       - name: Extract application source
         run: |
-          unzip -q final-teenage-arc-final.zip
+          mkdir -p final-teenage-arc-v2
+          unzip -q final-teenage-arc-final.zip -d final-teenage-arc-v2
           test -f final-teenage-arc-v2/package.json
           test -f final-teenage-arc-v2/src/main.jsx
 
