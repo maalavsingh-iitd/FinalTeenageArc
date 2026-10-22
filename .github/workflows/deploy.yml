@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -37,11 +37,28 @@ jobs:
           test -f final-teenage-arc-v2/package.json
           test -f final-teenage-arc-v2/src/main.jsx
 
+      - name: Apply timer fix
+        run: python3 scripts/fix_focus_timer.py
+
       - name: Install dependencies and build
         working-directory: final-teenage-arc-v2
         run: |
           npm install --no-audit --no-fund
           npm run build -- --base=/FinalTeenageArc/
+
+      - name: Refresh source archive with fixed code
+        run: |
+          rm -f final-teenage-arc-final.zip
+          cd final-teenage-arc-v2
+          zip -qr ../final-teenage-arc-final.zip package.json index.html README.md src
+          cd ..
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add final-teenage-arc-final.zip
+          if ! git diff --cached --quiet; then
+            git commit -m "Update source archive with background-safe focus timer"
+            git push
+          fi
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
